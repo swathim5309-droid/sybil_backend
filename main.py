@@ -36,7 +36,7 @@ class InputData(BaseModel):
 # Load Random Forest
 # -------------------------------
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-MODEL_PATH = os.path.join(BASE_DIR, "rf_model (1).pkl")
+MODEL_PATH = os.path.join(BASE_DIR, "final_rf.pkl")
 
 
 model = None

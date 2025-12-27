@@ -200,6 +200,28 @@ async def predict_sensor_csv(file: UploadFile = File(...)):
         raise HTTPException(status_code=400, detail=str(e))
 
 
+@app.post("/predict-sensor-json")
+def predict_sensor_json(data: InputData):
+    if ss_model is None:
+        raise HTTPException(status_code=500, detail="Sensor model not loaded")
+
+    try:
+        X = np.array(data.features, dtype=float).reshape(1, -1)
+        pred = int(ss_model.predict(X)[0])
+
+        confidence = None
+        if hasattr(ss_model, "predict_proba"):
+            confidence = float(max(ss_model.predict_proba(X)[0]))
+
+        return {
+            "prediction": pred,
+            "action": ACTION_MAP.get(pred, "Unknown"),
+            "confidence": confidence,
+        }
+
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
 # previous -working
 # -------------------------------
 # Predict from CSV upload

@@ -37,6 +37,7 @@ class InputData(BaseModel):
 # -------------------------------
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 MODEL_PATH = os.path.join(BASE_DIR, "final_rf.pkl")
+SS_MODEL_PATH = os.path.join(BASE_DIR, "sensor_model.pkl")
 
 
 model = None
@@ -44,10 +45,13 @@ try:
     with open(MODEL_PATH, "rb") as f:
         model = pickle.load(f)
     print("✅ Model loaded successfully:", type(model))
+    with open(SS_MODEL_PATH, "rb") as f1:
+        ss_model = pickle.load(f1)
+    print("✅ Model loaded successfully:", type(model))
 except Exception as e:
     print("❌ Model load failed:", repr(e))
 
-# print("MODEL PATH:", MODEL_PATH)
+# print("MODEL PATH:", MODEL_PATH) 
 # print("MODEL EXISTS:", os.path.exists(MODEL_PATH))
 
 # -------------------------------
@@ -129,8 +133,72 @@ async def predict_csv(file: UploadFile = File(...)):
         raise HTTPException(status_code=400, detail=str(e))
         
 
+SENSOR_REQUIRED_FEATURES = [
+    "speed_kmh",
+    "acceleration_mps2",
+    "lane_deviation",
+    "obstacle_distance",
+    "traffic_density",
+]
 
-    
+@app.post("/predict-sensor-csv")
+async def predict_sensor_csv(file: UploadFile = File(...)):
+    if ss_model is None:
+        raise HTTPException(status_code=500, detail="Sensor model not loaded")
+
+    try:
+        # Read uploaded CSV
+        content = await file.read()
+        decoded = content.decode("utf-8")
+        reader = csv.DictReader(io.StringIO(decoded))
+
+        # Read first row only
+        row = next(reader, None)
+        if row is None:
+            raise ValueError("CSV file is empty")
+
+        features = []
+        missing = []
+
+        # Extract features in model order
+        for col in SENSOR_REQUIRED_FEATURES:
+            if col not in row:
+                missing.append(col)
+            else:
+                try:
+                    features.append(float(row[col]))
+                except ValueError:
+                    raise ValueError(
+                        f"Invalid numeric value in column '{col}'"
+                    )
+
+        if missing:
+            raise ValueError(
+                f"Missing required columns: {missing}"
+            )
+
+        # Run model
+        X = np.array(features, dtype=float).reshape(1, -1)
+        pred = int(ss_model.predict(X)[0])
+
+        confidence = None
+        if hasattr(ss_model, "predict_proba"):
+            confidence = float(
+                max(ss_model.predict_proba(X)[0])
+            )
+
+        action = ACTION_MAP.get(pred, "Unknown")
+
+        return {
+            "prediction": pred,
+            "action": action,
+            "confidence": confidence,
+            "used_features": SENSOR_REQUIRED_FEATURES,
+        }
+
+    except Exception as e:
+        raise HTTPException(status_code=400, detail=str(e))
+
 
 # previous -working
 # -------------------------------

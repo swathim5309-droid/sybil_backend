@@ -25,31 +25,51 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+class InputData(BaseModel):
+    features: List[float] 
+    BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+    RF_PATH = os.path.join(BASE_DIR, "rf_model.pkl")
+    XGB_PATH = os.path.join(BASE_DIR, "xgb_model.pkl")
+    LSTM_PATH = os.path.join(BASE_DIR, "lstm_model.keras")
+    SS_MODEL_PATH = os.path.join(BASE_DIR, "sensor_model.pkl") 
+    # Load models 
+    try:
+        with open(RF_PATH, "rb") as f:
+            rf_model = pickle.load(f)
+        with open(XGB_PATH, "rb") as f:
+            xgb_model = pickle.load(f) lstm_model = load_model(LSTM_PATH)
+        with open(SS_MODEL_PATH, "rb") as f:
+            ss_model = pickle.load(f) print("✅ Models loaded successfully")
+    except Exception as e: 
+        print("❌ Model load failed:", repr(e))
+        ACTION_MAP = { 0: "No action required",
+                       1: "Alert driver", 
+                       2: "Emergency brake", }
 
 # -------------------------------
 # Input Schema (manual input)
 # -------------------------------
-class InputData(BaseModel):
-    features: List[float]
+# class InputData(BaseModel):
+#     features: List[float]
 
-# -------------------------------
-# Load Random Forest
-# -------------------------------
-BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-MODEL_PATH = os.path.join(BASE_DIR, "ensemble_model (4).pkl")
-SS_MODEL_PATH = os.path.join(BASE_DIR, "sensor_model.pkl")
+# # -------------------------------
+# # Load Random Forest
+# # -------------------------------
+# BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+# MODEL_PATH = os.path.join(BASE_DIR, "ensemble_model (4).pkl")
+# SS_MODEL_PATH = os.path.join(BASE_DIR, "sensor_model.pkl")
 
 
-model = None
-try:
-    with open(MODEL_PATH, "rb") as f:
-        model = pickle.load(f)
-    print("✅ Model loaded successfully:", type(model))
-    with open(SS_MODEL_PATH, "rb") as f1:
-        ss_model = pickle.load(f1)
-    print("✅ Model loaded successfully:", type(model))
-except Exception as e:
-    print("❌ Model load failed:", repr(e))
+# model = None
+# try:
+#     with open(MODEL_PATH, "rb") as f:
+#         model = pickle.load(f)
+#     print("✅ Model loaded successfully:", type(model))
+#     with open(SS_MODEL_PATH, "rb") as f1:
+#         ss_model = pickle.load(f1)
+#     print("✅ Model loaded successfully:", type(model))
+# except Exception as e:
+#     print("❌ Model load failed:", repr(e))
 
 # print("MODEL PATH:", MODEL_PATH) 
 # print("MODEL EXISTS:", os.path.exists(MODEL_PATH))

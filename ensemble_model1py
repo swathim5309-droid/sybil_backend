@@ -1,0 +1,15 @@
+import numpy as np
+
+class EnsembleModel:
+    def __init__(self, rf_model, xgb_model, lstm_model):
+        self.rf_model = rf_model
+        self.xgb_model = xgb_model
+        self.lstm_model = lstm_model
+
+    def predict(self, X_ml, X_dl):
+        rf_pred = self.rf_model.predict(X_ml)
+        xgb_pred = self.xgb_model.predict(X_ml)
+        lstm_pred = self.lstm_model.predict(X_dl).argmax(axis=1)
+
+        preds = np.vstack([rf_pred, xgb_pred, lstm_pred]).T
+        return np.array([np.bincount(row).argmax() for row in preds])

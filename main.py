@@ -24,7 +24,7 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
-
+# model
 class InputData(BaseModel):
     features: List[float] 
     BASE_DIR = os.path.dirname(os.path.abspath(__file__))

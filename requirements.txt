@@ -4,6 +4,4 @@ pydantic
 numpy
 scikit-learn
 python-multipart
-xgboost
-tensorflow
 joblib

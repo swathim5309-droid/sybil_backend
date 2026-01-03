@@ -38,7 +38,7 @@ class InputData(BaseModel):
 # -------------------------------
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 MODEL_PATH = os.path.join(BASE_DIR, "final_rf.pkl")
-# SS_MODEL_PATH = os.path.join(BASE_DIR, "sensor_model.pkl")
+SS_MODEL_PATH = os.path.join(BASE_DIR, "sensor_model.pkl")
 
 
 model = None
@@ -47,7 +47,7 @@ try:
         model = pickle.load(f)
     print("✅ Model loaded successfully:", type(model))
     with open(SS_MODEL_PATH, "rb") as f1:
-        ss_model = pickle.load(f1)
+        sensor_model = pickle.load(f1)
     print("✅ Model loaded successfully:", type(model))
 except Exception as e:
     print("❌ Model load failed:", repr(e))

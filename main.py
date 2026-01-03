@@ -136,104 +136,104 @@ async def predict_csv(file: UploadFile = File(...)):
 
 
 # changefrom fastapi import FastAPI, UploadFile, File, HTTPException
-from pydantic import BaseModel
-from typing import List
-import numpy as np
-import csv, io, joblib
+# from pydantic import BaseModel
+# from typing import List
+# import numpy as np
+# import csv, io, joblib
 
-app = FastAPI()
+# app = FastAPI()
 
-# Load model
-try:
-    ss_model = joblib.load("sensor_spoofing_model.pkl")
-except Exception:
-    ss_model = None
+# # Load model
+# try:
+#     ss_model = joblib.load("sensor_spoofing_model.pkl")
+# except Exception:
+#     ss_model = None
 
-SENSOR_REQUIRED_FEATURES = [
-    "speed_kmh",
-    "acceleration_mps2",
-    "lane_deviation",
-    "obstacle_distance",
-    "traffic_density",
-]
+# SENSOR_REQUIRED_FEATURES = [
+#     "speed_kmh",
+#     "acceleration_mps2",
+#     "lane_deviation",
+#     "obstacle_distance",
+#     "traffic_density",
+# ]
 
-ACTION_MAP = {
-    0: "Normal Driving",
-    1: "Sensor Spoofing Detected",
-    2: "Emergency Stop",
-}
+# ACTION_MAP = {
+#     0: "Normal Driving",
+#     1: "Sensor Spoofing Detected",
+#     2: "Emergency Stop",
+# }
 
-class InputData(BaseModel):
-    features: List[float]
+# class InputData(BaseModel):
+#     features: List[float]
 
-@app.post("/predict-sensor-csv")
-async def predict_sensor_csv(file: UploadFile = File(...)):
-    if ss_model is None:
-        raise HTTPException(status_code=500, detail="Sensor model not loaded")
+# @app.post("/predict-sensor-csv")
+# async def predict_sensor_csv(file: UploadFile = File(...)):
+#     if ss_model is None:
+#         raise HTTPException(status_code=500, detail="Sensor model not loaded")
 
-    try:
-        content = await file.read()
-        decoded = content.decode("utf-8")
-        reader = csv.DictReader(io.StringIO(decoded))
+#     try:
+#         content = await file.read()
+#         decoded = content.decode("utf-8")
+#         reader = csv.DictReader(io.StringIO(decoded))
 
-        row = next(reader, None)
-        if row is None:
-            raise ValueError("CSV file is empty")
+#         row = next(reader, None)
+#         if row is None:
+#             raise ValueError("CSV file is empty")
 
-        features = []
-        missing = []
+#         features = []
+#         missing = []
 
-        for col in SENSOR_REQUIRED_FEATURES:
-            if col not in row:
-                missing.append(col)
-            else:
-                try:
-                    features.append(float(row[col]))
-                except ValueError:
-                    raise ValueError(f"Invalid numeric value in column '{col}'")
+#         for col in SENSOR_REQUIRED_FEATURES:
+#             if col not in row:
+#                 missing.append(col)
+#             else:
+#                 try:
+#                     features.append(float(row[col]))
+#                 except ValueError:
+#                     raise ValueError(f"Invalid numeric value in column '{col}'")
 
-        if missing:
-            raise ValueError(f"Missing required columns: {missing}")
+#         if missing:
+#             raise ValueError(f"Missing required columns: {missing}")
 
-        X = np.array(features, dtype=float).reshape(1, -1)
-        pred = int(ss_model.predict(X)[0])
+#         X = np.array(features, dtype=float).reshape(1, -1)
+#         pred = int(ss_model.predict(X)[0])
 
-        confidence = None
-        if hasattr(ss_model, "predict_proba"):
-            confidence = float(max(ss_model.predict_proba(X)[0]))
+#         confidence = None
+#         if hasattr(ss_model, "predict_proba"):
+#             confidence = float(max(ss_model.predict_proba(X)[0]))
 
-        return {
-            "prediction": pred,
-            "action": ACTION_MAP.get(pred, "Unknown"),
-            "confidence": confidence,
-            "used_features": SENSOR_REQUIRED_FEATURES,
-        }
+#         return {
+#             "prediction": pred,
+#             "action": ACTION_MAP.get(pred, "Unknown"),
+#             "confidence": confidence,
+#             "used_features": SENSOR_REQUIRED_FEATURES,
+#         }
 
-    except Exception as e:
-        raise HTTPException(status_code=400, detail=str(e))
+#     except Exception as e:
+#         raise HTTPException(status_code=400, detail=str(e))
 
 
-@app.post("/predict-sensor-json")
-def predict_sensor_json(data: InputData):
-    if ss_model is None:
-        raise HTTPException(status_code=500, detail="Sensor model not loaded")
+# @app.post("/predict-sensor-json")
+# def predict_sensor_json(data: InputData):
+#     if ss_model is None:
+#         raise HTTPException(status_code=500, detail="Sensor model not loaded")
 
-    try:
-        X = np.array(data.features, dtype=float).reshape(1, -1)
-        pred = int(ss_model.predict(X)[0])
+#     try:
+#         X = np.array(data.features, dtype=float).reshape(1, -1)
+#         pred = int(ss_model.predict(X)[0])
 
-        confidence = None
-        if hasattr(ss_model, "predict_proba"):
-            confidence = float(max(ss_model.predict_proba(X)[0]))
+#         confidence = None
+#         if hasattr(ss_model, "predict_proba"):
+#             confidence = float(max(ss_model.predict_proba(X)[0]))
 
-        return {
-            "prediction": pred,
-            "action": ACTION_MAP.get(pred, "Unknown"),
-            "confidence": confidence,
-        }
+#         return {
+#             "prediction": pred,
+#             "action": ACTION_MAP.get(pred, "Unknown"),
+#             "confidence": confidence,
+#         }
 
-    except Exception as e:
-        raise HTTPException(status_code=400, detail=str(e))
+#     except Exception as e:
+#         raise HTTPException(status_code=400, detail=str(e))
 
 
 # SENSOR_REQUIRED_FEATURES = [

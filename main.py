@@ -134,7 +134,59 @@ async def predict_csv(file: UploadFile = File(...)):
         raise HTTPException(status_code=400, detail=str(e))
 
 
+@app.post("/predict-sensor-json")
+def predict_sensor_json(data: InputData):
+    if sensor_model is None:
+        raise HTTPException(status_code=500, detail="Sensor model not loaded")
 
+    X = np.array(data.features, dtype=float).reshape(1, -1)
+    pred = int(sensor_model.predict(X)[0])
+
+    confidence = None
+    if hasattr(sensor_model, "predict_proba"):
+        confidence = float(max(sensor_model.predict_proba(X)[0]))
+
+    return {"prediction": pred, "action": ACTION_MAP.get(pred, "Unknown"), "confidence": confidence}
+
+@app.post("/predict-sensor-csv")
+async def predict_sensor_csv(file: UploadFile = File(...)):
+    if sensor_model is None:
+        raise HTTPException(status_code=500, detail="Sensor model not loaded")
+
+    content = await file.read()
+    decoded = content.decode("utf-8")
+    reader = csv.DictReader(io.StringIO(decoded))
+
+    row = next(reader, None)
+    if row is None:
+        raise HTTPException(status_code=400, detail="CSV file is empty")
+
+    features, missing = [], []
+    for col in SENSOR_REQUIRED_FEATURES:
+        if col not in row:
+            missing.append(col)
+        else:
+            try:
+                features.append(float(row[col]))
+            except ValueError:
+                raise HTTPException(status_code=400, detail=f"Invalid numeric value in column '{col}'")
+
+    if missing:
+        raise HTTPException(status_code=400, detail=f"Missing required columns: {missing}")
+
+    X = np.array(features, dtype=float).reshape(1, -1)
+    pred = int(sensor_model.predict(X)[0])
+
+    confidence = None
+    if hasattr(sensor_model, "predict_proba"):
+        confidence = float(max(sensor_model.predict_proba(X)[0]))
+
+    return {
+        "prediction": pred,
+        "action": ACTION_MAP.get(pred, "Unknown"),
+        "confidence": confidence,
+        "used_features": SENSOR_REQUIRED_FEATURES,
+    }
 # changefrom fastapi import FastAPI, UploadFile, File, HTTPException
 # from pydantic import BaseModel
 # from typing import List

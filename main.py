@@ -38,7 +38,7 @@ class InputData(BaseModel):
 # -------------------------------
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 MODEL_PATH = os.path.join(BASE_DIR, "final_rf.pkl")
-SS_MODEL_PATH = os.path.join(BASE_DIR, "sensor_model.pkl")
+# SS_MODEL_PATH = os.path.join(BASE_DIR, "sensor_model.pkl")
 
 
 model = None

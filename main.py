@@ -47,8 +47,8 @@ try:
 except Exception as e:
     print("❌ Model load failed:", repr(e))
 
-# print("MODEL PATH:", MODEL_PATH)
-# print("MODEL EXISTS:", os.path.exists(MODEL_PATH))
+print("MODEL PATH:", MODEL_PATH)
+print("MODEL EXISTS:", os.path.exists(MODEL_PATH))
 
 # -------------------------------
 # Health
@@ -81,8 +81,8 @@ def predict(data: InputData):
         raise HTTPException(status_code=500, detail=str(e))
 
 REQUIRED_FEATURES = [
-    "position_x",
-    "position_y",
+    "x",
+    "y",
     "speed",
     "acceleration",
 ]

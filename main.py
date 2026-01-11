@@ -84,11 +84,7 @@ REQUIRED_FEATURES = [
     "position_x",
     "position_y",
     "speed",
-    "direction",
     "acceleration",
-    "signal_strength",
-    "trust_score",
-    "sybil_attack_attempts"
 ]
 
 @app.post("/predict-csv")

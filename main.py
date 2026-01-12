@@ -19,7 +19,9 @@ app = FastAPI(title="Sybil Attack Detection API")
 # -------------------------------
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=["https://6000-firebase-threatwatch-avdup-1767074125878.cluster-osvg2nzmmzhzqqjio6oojllbg4.cloudworkstations.dev",
+        "http://localhost:3000",
+        "http://127.0.0.1:3000"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -41,6 +43,8 @@ SS_MODEL_PATH = os.path.join(BASE_DIR, "sensor_model.pkl")
 
 
 model = None
+sensor_model = None
+
 try:
     with open(MODEL_PATH, "rb") as f:
         model = pickle.load(f)
@@ -53,6 +57,10 @@ except Exception as e:
 
 print("MODEL PATH:", MODEL_PATH) 
 print("MODEL EXISTS:", os.path.exists(MODEL_PATH))
+
+print("SENSOR MODEL PATH:", SS_MODEL_PATH)
+print("SENSOR MODEL EXISTS:", os.path.exists(SS_MODEL_PATH))
+
 
 # -------------------------------
 # Health

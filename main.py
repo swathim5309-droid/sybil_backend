@@ -180,20 +180,22 @@ def predict_sensor_json(data: InputData):
 
     try:
         X = np.array(data.features, dtype=float).reshape(1, -1)
-        pred = int(sensor_model.predict(X)[0])
-   action = sensor_model.predict(X)[0]
+
+        # ✅ DO NOT cast to int
+        action = sensor_model.predict(X)[0]
+
         confidence = None
         if hasattr(sensor_model, "predict_proba"):
             confidence = float(max(sensor_model.predict_proba(X)[0]))
 
         return {
-            "prediction": pred,
-            "action": ACTION_MAP.get(pred, "Unknown"),
+            "action": action,
             "confidence": confidence,
         }
 
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
+
 
 # ===============================
 # SENSOR SPOOFING (CSV)

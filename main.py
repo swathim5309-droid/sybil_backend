@@ -200,50 +200,108 @@ def predict_sensor_json(data: InputData):
 # ===============================
 # SENSOR SPOOFING (CSV)
 # ===============================
+# @app.post("/predict-sensor-csv")
+# async def predict_sensor_csv(file: UploadFile = File(...)):
+#     if sensor_model is None:
+#         raise HTTPException(status_code=500, detail="Sensor model not loaded")
+
+#     try:
+#         content = await file.read()
+#         reader = csv.DictReader(io.StringIO(content.decode("utf-8")))
+
+#         row = next(reader, None)
+#         if not row:
+#             raise HTTPException(status_code=400, detail="CSV file is empty")
+
+#         features = []
+#         missing = []
+
+#         for col in SENSOR_REQUIRED_FEATURES:
+#             if col not in row:
+#                 missing.append(col)
+#             else:
+#                 features.append(float(row[col]))
+
+#         if missing:
+#             raise HTTPException(
+#                 status_code=400,
+#                 detail=f"Missing required columns: {missing}",
+#             )
+
+#         X = np.array(features, dtype=float).reshape(1, -1)
+#         pred = int(sensor_model.predict(X)[0])
+
+#         confidence = None
+#         if hasattr(sensor_model, "predict_proba"):
+#             confidence = float(max(sensor_model.predict_proba(X)[0]))
+
+#         return {
+#             "prediction": pred,
+#             "action": ACTION_MAP.get(pred, "Unknown"),
+#             "confidence": confidence,
+#             "used_features": SENSOR_REQUIRED_FEATURES,
+#         }
+
+#     except Exception as e:
+#         raise HTTPException(status_code=400, detail=str(e))
 @app.post("/predict-sensor-csv")
 async def predict_sensor_csv(file: UploadFile = File(...)):
     if sensor_model is None:
         raise HTTPException(status_code=500, detail="Sensor model not loaded")
 
     try:
+        # Read uploaded file
         content = await file.read()
         reader = csv.DictReader(io.StringIO(content.decode("utf-8")))
 
+        # Get first row
         row = next(reader, None)
         if not row:
             raise HTTPException(status_code=400, detail="CSV file is empty")
 
-        features = []
-        missing = []
-
+        # Extract features in required order
+        features, missing = [], []
         for col in SENSOR_REQUIRED_FEATURES:
             if col not in row:
                 missing.append(col)
             else:
-                features.append(float(row[col]))
+                try:
+                    features.append(float(row[col]))
+                except ValueError:
+                    raise HTTPException(
+                        status_code=400,
+                        detail=f"Invalid numeric value in column '{col}'"
+                    )
 
         if missing:
             raise HTTPException(
                 status_code=400,
-                detail=f"Missing required columns: {missing}",
+                detail=f"Missing required columns: {missing}"
             )
 
+        # ✅ Validate feature length
+        if len(features) != len(SENSOR_REQUIRED_FEATURES):
+            raise HTTPException(
+                status_code=400,
+                detail=f"Expected {len(SENSOR_REQUIRED_FEATURES)} features, got {len(features)}"
+            )
+
+        # Predict
         X = np.array(features, dtype=float).reshape(1, -1)
-        pred = int(sensor_model.predict(X)[0])
+        action = sensor_model.predict(X)[0]   # DO NOT cast to int
 
         confidence = None
         if hasattr(sensor_model, "predict_proba"):
             confidence = float(max(sensor_model.predict_proba(X)[0]))
 
         return {
-            "prediction": pred,
-            "action": ACTION_MAP.get(pred, "Unknown"),
+            "action": action,
             "confidence": confidence,
             "used_features": SENSOR_REQUIRED_FEATURES,
         }
 
     except Exception as e:
-        raise HTTPException(status_code=400, detail=str(e))
+        raise HTTPException(status_code=500, detail=str(e))
 
 
 

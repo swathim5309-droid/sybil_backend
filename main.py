@@ -20,7 +20,7 @@ app = FastAPI(title="Sybil Attack Detection API")
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
-    allow_credentials=False,
+    allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
@@ -87,6 +87,8 @@ def predict(data: InputData):
 REQUIRED_FEATURES = [
    'x','y','speed','acceleration'
 ]
+ SENSOR_REQUIRED_FEATURES = ['speed_kmh','acceleration_mps2','lane_deviation','obstacle_distance','traffic_density',]
+ACTION_MAP = {0: "Normal", 1: "Spoofing"}
 
 @app.post("/predict-csv")
 async def predict_csv(file: UploadFile = File(...)):

@@ -21,6 +21,7 @@ app.add_middleware(
     allow_origins=[
         "http://localhost:3000",
         "http://127.0.0.1:3000",
+        "https://6000-firebase-studio-1765414312477.cluster-osvg2nzmmzhzqqjio6oojllbg4.cloudworkstations.dev",
         "https://6000-firebase-threatwatch-avdup-1767074125878.cluster-osvg2nzmmzhzqqjio6oojllbg4.cloudworkstations.dev",
         "https://6000-firebase-threatwatch-avdup1-1769254947663.cluster-osvg2nzmmzhzqqjio6oojllbg4.cloudworkstations.dev",
     ],

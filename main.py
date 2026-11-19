@@ -25,8 +25,9 @@ app.add_middleware(
         "https://6000-firebase-threatwatch-avdup-1767074125878.cluster-osvg2nzmmzhzqqjio6oojllbg4.cloudworkstations.dev",
         "https://6000-firebase-threatwatch-avdup1-1769254947663.cluster-osvg2nzmmzhzqqjio6oojllbg4.cloudworkstations.dev",
         "https://threat-watch-a-vdup1.vercel.app",
-        "https://jubilant-engine-wrp5gprxw9rvc9vvq.github.dev/",
+       
     ],
+    allow_origin_regex=r"https://jubilant-engine-wrp5gprxw9rvc9vvq.github.dev/",
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],

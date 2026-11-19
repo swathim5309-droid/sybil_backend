@@ -27,7 +27,6 @@ app.add_middleware(
         "https://threat-watch-a-vdup1.vercel.app",
        
     ],
-    allow_origin_regex=r"https://jubilant-engine-wrp5gprxw9rvc9vvq.github.dev/",
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],

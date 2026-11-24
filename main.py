@@ -27,7 +27,7 @@ app.add_middleware(
         "https://threat-watch-a-vdup1.vercel.app",
        
     ],
-    allow_origin_regex=r"https://.*\.cloudworkstations\.dev",#extra-1
+   
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],

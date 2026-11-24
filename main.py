@@ -27,6 +27,7 @@ app.add_middleware(
         "https://threat-watch-a-vdup1.vercel.app",
        
     ],
+    allow_origin_regex=r"https://.*\.cloudworkstations\.dev",#extra-1
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -60,6 +61,16 @@ ACTION_MAP = {
     0: "Normal Driving",
     1: "Sensor Spoofing Detected",
 }
+
+# ===============================
+# Helpers-extra 2
+# ===============================
+def to_py(value):
+    """Convert numpy values (e.g. np.int64) to plain Python types so JSON can send them."""
+    if hasattr(value, "item"):
+        return value.item()
+    return value
+
 
 # ===============================
 # Model Loading
@@ -167,6 +178,8 @@ async def predict_csv(file: UploadFile = File(...)):
 
     except Exception as e:
         raise HTTPException(status_code=400, detail=str(e))
+        except Exception as e:
+        raise HTTPException(status_code=400, detail=str(e))#extra -3
 
 # ===============================
 # SENSOR SPOOFING (JSON)
@@ -196,9 +209,11 @@ def predict_sensor_json(data: InputData):
             "action": action,
             "confidence": confidence,
         }
-
+except HTTPException:#
+        raise#etra -4
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
+        
 
 
 # ===============================
@@ -303,7 +318,8 @@ async def predict_sensor_csv(file: UploadFile = File(...)):
             "confidence": confidence,
             "used_features": SENSOR_REQUIRED_FEATURES,
         }
-
+except HTTPException:#
+        raise#extra-5
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 

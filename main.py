@@ -62,15 +62,6 @@ ACTION_MAP = {
     1: "Sensor Spoofing Detected",
 }
 
-# ===============================
-# Helpers-extra 2
-# ===============================
-def to_py(value):
-    """Convert numpy values (e.g. np.int64) to plain Python types so JSON can send them."""
-    if hasattr(value, "item"):
-        return value.item()
-    return value
-
 
 # ===============================
 # Model Loading
@@ -178,8 +169,7 @@ async def predict_csv(file: UploadFile = File(...)):
 
     except Exception as e:
         raise HTTPException(status_code=400, detail=str(e))
-        except Exception as e:
-        raise HTTPException(status_code=400, detail=str(e))#extra -3
+       
 
 # ===============================
 # SENSOR SPOOFING (JSON)
@@ -209,8 +199,7 @@ def predict_sensor_json(data: InputData):
             "action": action,
             "confidence": confidence,
         }
-except HTTPException:#
-        raise#etra -4
+
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
         
